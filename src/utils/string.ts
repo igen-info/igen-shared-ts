@@ -1,6 +1,9 @@
 import type { Optional } from '../types.js';
 import { isDefined } from './std.js';
 
+/**
+ * Capitalizes only the first letter of the provided string.
+ */
 export const capitalize = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);
 
 const splitWords = (value: string): string[] => {
@@ -28,10 +31,19 @@ const camelize = (value: string): string => {
     return [first.toLowerCase(), ...rest.map((word) => capitalize(word.toLowerCase()))].join('');
 };
 
+/**
+ * Converts a phrase into snake_case.
+ */
 export const snakeCase = (str: string): string => slugify(str, '_');
 
+/**
+ * Converts a phrase into kebab-case.
+ */
 export const kebabCase = (str: string): string => slugify(str, '-');
 
+/**
+ * Converts a phrase into camelCase.
+ */
 export const camelCase = (str: string): string => camelize(str);
 
 type TextEncoderCtor = new () => { encode: (value: string) => Uint8Array };
@@ -124,12 +136,27 @@ const base64ToBytes = (value: string): Uint8Array => {
     throw new Error('Base64 decoding is not supported in this environment');
 };
 
+/**
+ * Encodes a string to base64 using UTF-8 bytes.
+ */
 export const base64Encode = (str: string): string => base64FromBytes(encodeUtf8(str));
 
+/**
+ * Decodes a base64 string back to a UTF-8 string.
+ */
 export const base64Decode = (value: string): string => decodeUtf8(base64ToBytes(value));
 
+/**
+ * Safely trims a string, defaulting to an empty value.
+ */
 export const trim = (str: Optional<string>): string => str?.trim() ?? '';
 
+/**
+ * Checks whether a string is nullish or contains only whitespace.
+ */
 export const isBlank = (str: Optional<string>): boolean => !isDefined(str) || str.trim().length === 0;
 
+/**
+ * Checks whether a string exists and has at least one non-whitespace character.
+ */
 export const isNotBlank = (str: Optional<string>): boolean => isDefined(str) && str.trim().length > 0;

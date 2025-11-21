@@ -1,3 +1,6 @@
+/**
+ * Units supported by the date helpers for shifting, diffing and rounding.
+ */
 export type DateUnit = 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 
 const MILLISECOND_IN_SECOND = 1000;
@@ -72,14 +75,27 @@ const diffInMonths = (start: Date, end: Date): number => {
     return months + ((end.getTime() - adjustedAnchor.getTime()) / interval) * sign;
 };
 
+/**
+ * Formats a date using the Intl.DateTimeFormat API helpers.
+ */
 export const formatDate = (date: Date, locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string => {
     return new Intl.DateTimeFormat(locales, options).format(date);
 };
 
+/**
+ * Returns a new Date representing the current instant.
+ */
 export const now = (): Date => new Date();
 
+/**
+ * Creates a new date shifted by the provided value and unit.
+ * @param date Base date, defaults to `now()`.
+ */
 export const modifyDate = (value: number, unit: DateUnit, date: Date = now()): Date => shiftDate(date, value, unit);
 
+/**
+ * Calculates the difference between two dates in the desired unit.
+ */
 export const dateDiff = (start: Date, end: Date, unit: DateUnit): number => {
     const diffMilliseconds = end.getTime() - start.getTime();
 
@@ -105,6 +121,9 @@ export const dateDiff = (start: Date, end: Date, unit: DateUnit): number => {
     }
 };
 
+/**
+ * Returns a new date pinned to the beginning of the specified unit.
+ */
 export const startOf = (date: Date, unit: DateUnit): Date => {
     const result = cloneDate(date);
 
@@ -141,6 +160,9 @@ export const startOf = (date: Date, unit: DateUnit): Date => {
     }
 };
 
+/**
+ * Returns a new date representing the end instant of a given unit.
+ */
 export const endOf = (date: Date, unit: DateUnit): Date => {
     if (unit === 'millisecond') {
         return cloneDate(date);
@@ -150,4 +172,7 @@ export const endOf = (date: Date, unit: DateUnit): Date => {
     return shiftDate(nextStart, -1, 'millisecond');
 };
 
+/**
+ * Compares two dates at the provided unit precision.
+ */
 export const isSame = (a: Date, b: Date, unit: DateUnit): boolean => startOf(a, unit).getTime() === startOf(b, unit).getTime();
