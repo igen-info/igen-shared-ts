@@ -5,11 +5,23 @@ import { defineConfig } from 'eslint/config';
 
 export default defineConfig([
     {
-        files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
+        files: ['src/**/*.{js,mjs,cjs}'],
         plugins: { js },
         extends: ['js/recommended'],
         languageOptions: { globals: globals.node },
+        rules: { semi: ['error', 'always'] },
     },
-    tseslint.configs.recommended,
-    { rules: { semi: ['error', 'always'] } },
+    {
+        files: ['src/**/*.{ts,mts,cts}'],
+        extends: tseslint.configs.recommendedTypeChecked,
+        languageOptions: {
+            parserOptions: {
+                project: './tsconfig.json',
+            },
+        },
+        rules: {
+            semi: ['error', 'always'],
+            '@typescript-eslint/strict-boolean-expressions': 'error',
+        },
+    },
 ]);
