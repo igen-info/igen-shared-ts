@@ -49,6 +49,14 @@ describe('date utilities', () => {
         expect(startWeek.getTime()).toBe(expectedWeek.getTime());
     });
 
+    it('startOf honors the utc option', () => {
+        const date = new Date('2023-06-15T23:59:59.999Z');
+        const expectedLocal = new Date(date);
+        expectedLocal.setHours(0, 0, 0, 0);
+        expect(startOf(date, 'day').getTime()).toBe(expectedLocal.getTime());
+        expect(startOf(date, 'day', { utc: true }).toISOString()).toBe('2023-06-15T00:00:00.000Z');
+    });
+
     it('endOf returns the last instant for the given unit', () => {
         const date = new Date('2023-06-15T13:24:35.123Z');
         const endDay = endOf(date, 'day');
@@ -63,6 +71,11 @@ describe('date utilities', () => {
         expect(endMonth.getTime()).toBe(nextMonthStart.getTime() - 1);
     });
 
+    it('endOf honors the utc option', () => {
+        const date = new Date('2023-06-15T13:24:35.123Z');
+        expect(endOf(date, 'day', { utc: true }).toISOString()).toBe('2023-06-15T23:59:59.999Z');
+    });
+
     it('isSame compares dates using the requested precision', () => {
         const a = new Date(2023, 0, 1, 0, 0, 0, 0);
         const b = new Date(2023, 0, 1, 23, 59, 59, 999);
@@ -70,5 +83,11 @@ describe('date utilities', () => {
 
         expect(isSame(a, b, 'day')).toBe(true);
         expect(isSame(a, c, 'day')).toBe(false);
+    });
+
+    it('isSame can compare using UTC rounding', () => {
+        const a = new Date('2023-01-01T00:00:00.000Z');
+        const b = new Date('2023-01-01T23:59:59.999Z');
+        expect(isSame(a, b, 'day', { utc: true })).toBe(true);
     });
 });

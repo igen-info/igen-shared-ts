@@ -3,8 +3,7 @@ export type missing = null | undefined;
 export type something = Something<primitive | object>;
 export type blank = missing | '';
 
-export type ObjectKey = string | number | symbol;
-export type AnyObject<K extends ObjectKey = string, V = unknown> = Record<K, V>;
+export type AnyObject<K extends PropertyKey = string, V = unknown> = Record<K, V>;
 export type AnyFunction<Args extends unknown[] = unknown[], Return = unknown> = (...args: Args) => Return;
 export type Optional<T> = T | missing;
 export type Something<T> = Exclude<T, missing>;

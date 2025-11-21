@@ -3,6 +3,13 @@
  */
 export type DateUnit = 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 
+export type DateHelperOptions = {
+    /**
+     * When true the operations use UTC setters/getters rather than local time.
+     */
+    utc?: boolean;
+};
+
 const MILLISECOND_IN_SECOND = 1000;
 const MILLISECOND_IN_MINUTE = MILLISECOND_IN_SECOND * 60;
 const MILLISECOND_IN_HOUR = MILLISECOND_IN_MINUTE * 60;
@@ -16,33 +23,66 @@ const assertUnsupportedUnit = (_unit: never): never => {
     throw new Error('Unsupported DateUnit');
 };
 
-const shiftDate = (date: Date, value: number, unit: DateUnit): Date => {
+const shiftDate = (date: Date, value: number, unit: DateUnit, options?: DateHelperOptions): Date => {
     const updated = cloneDate(date);
+    const useUtc = options?.utc === true;
 
     switch (unit) {
         case 'millisecond':
-            updated.setMilliseconds(updated.getMilliseconds() + value);
+            if (useUtc) {
+                updated.setUTCMilliseconds(updated.getUTCMilliseconds() + value);
+            } else {
+                updated.setMilliseconds(updated.getMilliseconds() + value);
+            }
             break;
         case 'second':
-            updated.setSeconds(updated.getSeconds() + value);
+            if (useUtc) {
+                updated.setUTCSeconds(updated.getUTCSeconds() + value);
+            } else {
+                updated.setSeconds(updated.getSeconds() + value);
+            }
             break;
         case 'minute':
-            updated.setMinutes(updated.getMinutes() + value);
+            if (useUtc) {
+                updated.setUTCMinutes(updated.getUTCMinutes() + value);
+            } else {
+                updated.setMinutes(updated.getMinutes() + value);
+            }
             break;
         case 'hour':
-            updated.setHours(updated.getHours() + value);
+            if (useUtc) {
+                updated.setUTCHours(updated.getUTCHours() + value);
+            } else {
+                updated.setHours(updated.getHours() + value);
+            }
             break;
         case 'day':
-            updated.setDate(updated.getDate() + value);
+            if (useUtc) {
+                updated.setUTCDate(updated.getUTCDate() + value);
+            } else {
+                updated.setDate(updated.getDate() + value);
+            }
             break;
         case 'week':
-            updated.setDate(updated.getDate() + value * 7);
+            if (useUtc) {
+                updated.setUTCDate(updated.getUTCDate() + value * 7);
+            } else {
+                updated.setDate(updated.getDate() + value * 7);
+            }
             break;
         case 'month':
-            updated.setMonth(updated.getMonth() + value);
+            if (useUtc) {
+                updated.setUTCMonth(updated.getUTCMonth() + value);
+            } else {
+                updated.setMonth(updated.getMonth() + value);
+            }
             break;
         case 'year':
-            updated.setFullYear(updated.getFullYear() + value);
+            if (useUtc) {
+                updated.setUTCFullYear(updated.getUTCFullYear() + value);
+            } else {
+                updated.setFullYear(updated.getFullYear() + value);
+            }
             break;
         default:
             return assertUnsupportedUnit(unit);
@@ -123,37 +163,65 @@ export const dateDiff = (start: Date, end: Date, unit: DateUnit): number => {
 
 /**
  * Returns a new date pinned to the beginning of the specified unit.
+ * @param options When `utc` is true calculations ignore the local timezone offset.
  */
-export const startOf = (date: Date, unit: DateUnit): Date => {
+export const startOf = (date: Date, unit: DateUnit, options?: DateHelperOptions): Date => {
     const result = cloneDate(date);
+    const useUtc = options?.utc === true;
 
     switch (unit) {
         case 'millisecond':
             return result;
         case 'second':
-            result.setMilliseconds(0);
+            if (useUtc) {
+                result.setUTCMilliseconds(0);
+            } else {
+                result.setMilliseconds(0);
+            }
             return result;
         case 'minute':
-            result.setSeconds(0, 0);
+            if (useUtc) {
+                result.setUTCSeconds(0, 0);
+            } else {
+                result.setSeconds(0, 0);
+            }
             return result;
         case 'hour':
-            result.setMinutes(0, 0, 0);
+            if (useUtc) {
+                result.setUTCMinutes(0, 0, 0);
+            } else {
+                result.setMinutes(0, 0, 0);
+            }
             return result;
         case 'day':
-            result.setHours(0, 0, 0, 0);
+            if (useUtc) {
+                result.setUTCHours(0, 0, 0, 0);
+            } else {
+                result.setHours(0, 0, 0, 0);
+            }
             return result;
         case 'week': {
-            const startOfDay = startOf(date, 'day');
-            const day = startOfDay.getDay();
-            return shiftDate(startOfDay, -day, 'day');
+            const startOfDay = startOf(date, 'day', options);
+            const day = useUtc ? startOfDay.getUTCDay() : startOfDay.getDay();
+            return shiftDate(startOfDay, -day, 'day', options);
         }
         case 'month':
-            result.setDate(1);
-            result.setHours(0, 0, 0, 0);
+            if (useUtc) {
+                result.setUTCDate(1);
+                result.setUTCHours(0, 0, 0, 0);
+            } else {
+                result.setDate(1);
+                result.setHours(0, 0, 0, 0);
+            }
             return result;
         case 'year':
-            result.setMonth(0, 1);
-            result.setHours(0, 0, 0, 0);
+            if (useUtc) {
+                result.setUTCMonth(0, 1);
+                result.setUTCHours(0, 0, 0, 0);
+            } else {
+                result.setMonth(0, 1);
+                result.setHours(0, 0, 0, 0);
+            }
             return result;
         default:
             return assertUnsupportedUnit(unit);
@@ -162,17 +230,21 @@ export const startOf = (date: Date, unit: DateUnit): Date => {
 
 /**
  * Returns a new date representing the end instant of a given unit.
+ * @param options When `utc` is true calculations ignore the local timezone offset.
  */
-export const endOf = (date: Date, unit: DateUnit): Date => {
+export const endOf = (date: Date, unit: DateUnit, options?: DateHelperOptions): Date => {
     if (unit === 'millisecond') {
         return cloneDate(date);
     }
 
-    const nextStart = shiftDate(startOf(date, unit), 1, unit);
-    return shiftDate(nextStart, -1, 'millisecond');
+    const nextStart = shiftDate(startOf(date, unit, options), 1, unit, options);
+    return shiftDate(nextStart, -1, 'millisecond', options);
 };
 
 /**
  * Compares two dates at the provided unit precision.
+ * @param options When `utc` is true calculations ignore the local timezone offset.
  */
-export const isSame = (a: Date, b: Date, unit: DateUnit): boolean => startOf(a, unit).getTime() === startOf(b, unit).getTime();
+export const isSame = (a: Date, b: Date, unit: DateUnit, options?: DateHelperOptions): boolean => {
+    return startOf(a, unit, options).getTime() === startOf(b, unit, options).getTime();
+};
